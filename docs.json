@@ -34,6 +34,7 @@
             "group": "Integration guides",
             "pages": [
               "guides/ticket-sync",
+              "guides/send-messages",
               "changelog"
             ]
           }

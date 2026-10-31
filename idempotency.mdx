@@ -1,6 +1,6 @@
 ---
-title: "Idempotent ticket creation"
-description: "Retry ticket creation without duplicating support work."
+title: "Idempotent requests"
+description: "Retry ticket creation and message submissions safely."
 ---
 
 Every `POST /api/v1/tickets` request requires an `Idempotency-Key` header containing 1–128 visible ASCII characters. Choose a unique value from your source system, such as a CRM case identifier.
@@ -17,4 +17,14 @@ Reusing the key with a different payload returns `409 idempotency_conflict`. Ret
 
 Records are retained for the company's lifetime. Replaying an old creation returns its original response even if the ticket has since changed or been deleted. Retrieve the ticket separately to inspect its current state.
 
-Ticket creation does not send an email or WhatsApp message. These idempotency guarantees apply to ticket creation only.
+Ticket creation does not send an email or WhatsApp message. Send explicitly using the [messaging API](/guides/send-messages).
+
+## Message submissions
+
+Both `POST /api/v1/messages` and `POST /api/v1/tickets/{id}/reply` require an `Idempotency-Key` with the same length and character rules. Their keys belong to your company and the specific operation, including the ticket ID for the reply route. Always retry the same URL and body.
+
+Cconnect saves one encrypted queue entry for concurrent identical requests. Retries return the original `202` acceptance and message ID with `Idempotency-Replayed: true`. A different body with the same key returns `409 idempotency_conflict`. Switching between the two email routes creates a separate operation.
+
+Use `GET /api/v1/messages/{id}` for current status. A replay returns the original acceptance, even if delivery later failed. Records are retained for your company's lifetime.
+
+Cconnect submits each queued message once. If a network error or worker interruption leaves submission uncertain, the status becomes `delivery_unknown`. Cconnect does not automatically resubmit it. Provider callbacks can confirm a WhatsApp outcome later. Check the provider's logs before deliberately sending again with a new key; external providers cannot guarantee exactly-once delivery across a network failure.

@@ -32,3 +32,11 @@ Errors use a structured JSON response:
 Unknown request body fields are rejected. Database errors, provider secrets, and internal stack traces are not returned to API clients.
 
 For support, include the HTTP method, resource path, timestamp, status code, and `X-Request-Id` response header. Exclude authorization headers, tokens, cookies, and customer message content.
+
+## Sending errors
+
+Request validation failures, such as `whatsapp_window_closed`, return an HTTP error before queueing. `503 messaging_disabled` means the deployment has not enabled sending. A template provider lookup can return `502 provider_unavailable`.
+
+After a `202` acceptance, inspect `GET /api/v1/messages/{id}` for dispatch failures. Examples include `authorization_changed`, `channel_unavailable`, `template_unavailable`, `provider_rejected`, `resource_changed`, and `provider_delivery_failed`. A successful status lookup returns `200` even when the message's `status` is `failed`.
+
+`delivery_unknown` means submission could have succeeded. Follow the [sending retry guidance](/guides/send-messages) before attempting a new send.
