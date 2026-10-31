@@ -1,0 +1,74 @@
+---
+title: "Authentication and credentials"
+description: "Create, scope, rotate, and revoke company-owned API tokens."
+---
+
+## Authenticate an integration
+
+Send your Cconnect token in the authorization header over HTTPS:
+
+```http
+Authorization: Bearer YOUR_CCONNECT_API_TOKEN
+```
+
+Customer endpoints do not accept member session cookies, query-string tokens, Meta tokens, mailbox passwords, or SIP bridge secrets as API credentials.
+
+Credentials belong to one company. The server derives the company from the credential; request bodies cannot choose a company. An optional `X-Organization-Slug` header must match the credential's company.
+
+## Scopes and products
+
+| Scope | Operations | Required product |
+| --- | --- | --- |
+| `tickets:read` | List and retrieve tickets | Desk |
+| `tickets:write` | Create and update tickets | Desk |
+| `ticket_fields:read` | Read custom field definitions | Desk |
+| `conversations:read` | Read conversations and their messages | Chat |
+| `channels:read` | Read channel metadata | Desk for email; Chat for WhatsApp |
+
+Scopes are independent: `tickets:write` does not grant `tickets:read`. Linking a new ticket to a conversation also requires `conversations:read` and Chat entitlement. Subscription changes and expired trials are checked on subsequent requests.
+
+## Create a credential
+
+Only an active, email-activated company administrator can manage credentials. The backend refreshes the administrator's role from the database, so an old browser session cannot retain these privileges after a demotion.
+
+A dedicated Settings screen is not included yet. Until it is connected, an administrator can use the management API from the authenticated Cconnect application. For example, run this in your browser's developer console while signed in on the trusted company application origin:
+
+```javascript
+const response = await fetch('/api/settings/api-credentials', {
+  method: 'POST',
+  credentials: 'same-origin',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Cconnect-Admin': 'true'
+  },
+  body: JSON.stringify({
+    name: 'CRM ticket synchronization',
+    scopes: ['tickets:read', 'tickets:write']
+  })
+});
+const result = await response.json();
+if (!response.ok) throw new Error(result.error?.message ?? 'Credential creation failed');
+prompt('Store this token in your secret manager. It is shown only once.', result.data.token);
+```
+
+This requires the application to route `/api/settings/api-credentials` to the updated backend. The developer portal is for documentation; it does not manage member sessions.
+
+The response contains `data.credential` metadata and `data.token`. The server stores only the token's SHA-256 hash. Subsequent list requests do not return the token.
+
+Credentials expire after 90 days by default. An optional `expires_at` timestamp must be more than one minute and no more than 365 days in the future. You can have up to 20 active credentials per company.
+
+## List and revoke credentials
+
+Use your administrator session and the `X-Cconnect-Admin: true` header:
+
+| Method and path | Result |
+| --- | --- |
+| `GET /api/settings/api-credentials` | Credential metadata, without secrets |
+| `POST /api/settings/api-credentials` | A newly issued credential and its one-time token |
+| `DELETE /api/settings/api-credentials/ID` | Revoke a company-owned credential; returns `204` |
+
+A bearer integration credential cannot issue or revoke credentials. Management requests from untrusted browser origins are refused.
+
+## Rotate a token
+
+Create a replacement with the required scopes, update your integration's secret manager, verify the replacement with `GET /api/v1/me`, then revoke the previous credential. Newly authenticated requests reject revoked tokens; requests already in progress may finish.

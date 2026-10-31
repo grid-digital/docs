@@ -1,0 +1,20 @@
+---
+title: "Idempotent ticket creation"
+description: "Retry ticket creation without duplicating support work."
+---
+
+Every `POST /api/v1/tickets` request requires an `Idempotency-Key` header containing 1–128 visible ASCII characters. Choose a unique value from your source system, such as a CRM case identifier.
+
+```http
+Idempotency-Key: crm-case-1042
+```
+
+The key belongs to your company and the ticket-creation operation. It is shared across credentials, so rotating a token does not duplicate a retried request. Another company can use the same key independently.
+
+The server commits the ticket and its original response in one PostgreSQL transaction. Concurrent identical retries create one ticket and return that original `201` response. A replay includes `Idempotency-Replayed: true` and the ticket's original `Location` header.
+
+Reusing the key with a different payload returns `409 idempotency_conflict`. Retries must preserve the same request, including custom-field object ordering. Use a new key when creating a different ticket.
+
+Records are retained for the company's lifetime. Replaying an old creation returns its original response even if the ticket has since changed or been deleted. Retrieve the ticket separately to inspect its current state.
+
+Ticket creation does not send an email or WhatsApp message. These idempotency guarantees apply to ticket creation only.

@@ -1,0 +1,40 @@
+---
+title: "Synchronize support tickets"
+description: "Create and update Cconnect tickets from an external system."
+---
+
+Give your integration `tickets:read` and `tickets:write`. Add `ticket_fields:read` if you use custom fields. Your company must have Desk entitlement.
+
+## Create a ticket from your source system
+
+```bash
+curl --fail-with-body "$CCONNECT_API_URL/api/v1/tickets" \
+  --header "Authorization: Bearer $CCONNECT_API_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: crm-case-1042' \
+  --data '{"subject":"Customer cannot sign in","description":"A request synchronized from our CRM.","priority":"normal"}'
+```
+
+Store the returned `data.id` alongside your source record. API-created ticket numbers use the `API-` prefix and a unique identifier. The external integration is recorded as the ticket's creator.
+
+If you lose the response, retry the same payload with the same key. See [idempotency](/idempotency).
+
+## Update progress
+
+```bash
+curl --fail-with-body --request PATCH \
+  "$CCONNECT_API_URL/api/v1/tickets/YOUR_TICKET_ID" \
+  --header "Authorization: Bearer $CCONNECT_API_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{"status":"pending","priority":"high"}'
+```
+
+Updates accept status, priority, assignee, group name, and custom fields. An assignee must be an active member in your company. Send `assignee_id` as an empty string to remove the assignee. Custom field keys are the UUIDs returned by `GET /api/v1/ticket-fields`; supplied values merge with existing values. Required fields cannot be cleared.
+
+## Link an existing conversation
+
+Retrieve a conversation using a credential with `conversations:read`, then supply its opaque ID as `conversation_id` when creating a ticket. This additionally requires Chat entitlement. A conversation from another company is unavailable.
+
+## Retrieve changes
+
+Poll `GET /api/v1/tickets?updated_since=2026-10-01T00:00:00Z`, follow [pagination](/pagination), and upsert results into your system by ticket ID. Use overlapping windows to account for live updates. Customer webhook subscriptions are not included in this release.

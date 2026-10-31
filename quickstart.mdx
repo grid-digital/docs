@@ -1,47 +1,50 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Make your first API request"
+description: "Verify your integration credential and retrieve company-owned tickets."
 ---
-
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
 
 ## Prerequisites
 
-Before you begin, you must have:
+- Your Cconnect deployment has Customer API v1 enabled.
+- Your company has the required product entitlement: Desk for tickets, Chat for conversations.
+- Your administrator has issued a valid [API credential](/authentication).
+- Your administrator has confirmed the API base URL in the generated specification.
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+## Configure your client
 
-## Get started
+Store your credential in your integration's secret manager. For a local test, set shell variables using your own values:
 
-<Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+```bash
+export CCONNECT_API_URL='https://cconnect.online'
+export CCONNECT_API_TOKEN='YOUR_CCONNECT_API_TOKEN'
+```
 
-    ```bash
-    npm install your-package
-    ```
-  </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+Never place the token in a URL, browser storage, source control, screenshots, or support messages.
 
-    ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+## Verify your identity
 
-    ```bash
-    your-cli start
-    ```
-  </Step>
-</Steps>
+```bash
+curl --fail-with-body "$CCONNECT_API_URL/api/v1/me" \
+  --header "Authorization: Bearer $CCONNECT_API_TOKEN"
+```
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+The `data` object identifies your company, credential, scopes, and current products. This endpoint accepts any valid customer credential. It does not require a member session cookie.
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+## Read tickets
+
+A credential with `tickets:read` and a company with Desk entitlement can list tickets:
+
+```bash
+curl --fail-with-body "$CCONNECT_API_URL/api/v1/tickets?page=1&per_page=25" \
+  --header "Authorization: Bearer $CCONNECT_API_TOKEN"
+```
+
+An empty `data` array is a successful response when there are no matching tickets. Use `meta.has_more` to continue to the next [page](/pagination).
+
+## Choose the next operation
+
+Read the [ticket synchronization guide](/guides/ticket-sync), then inspect the matching operation in the **API reference** tab. The portal initially provides copyable examples; it does not execute production requests through the browser playground.
+
+Use a separate test company for integration development. This release does not provide an automatically provisioned sandbox.
+
+If a request fails, inspect the HTTP status, the structured [error](/errors), and `X-Request-Id` before retrying.

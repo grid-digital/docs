@@ -1,0 +1,38 @@
+---
+title: "Pagination and filtering"
+description: "Read bounded pages and synchronize changing resources."
+---
+
+All customer collection endpoints accept `page` and `per_page`.
+
+| Parameter | Default | Supported range |
+| --- | --- | --- |
+| `page` | `1` | `1`–`1000` |
+| `per_page` | `25` | `1`–`100` |
+
+```json
+{
+  "data": [],
+  "meta": {
+    "page": 1,
+    "per_page": 25,
+    "has_more": false
+  }
+}
+```
+
+Request the next page while `has_more` is true. Single-resource responses use `{ "data": { ... } }` without pagination metadata.
+
+## Filters and ordering
+
+Tickets accept `status`, `priority`, and `updated_since`. Conversations accept `status` and `updated_since`. Use an ISO 8601 timestamp with a timezone, such as `2026-10-01T00:00:00Z`.
+
+Tickets and conversations sort by `updated_at` descending with a stable ID/key tie-breaker. Messages sort by `timestamp` ascending with an ID tie-breaker. Fields and channels sort by ID.
+
+Ticket statuses are `open`, `pending`, `resolved`, and `closed`. Priorities are `low`, `normal`, `high`, and `urgent`. Conversation statuses are `open` and `resolved`.
+
+## Incremental synchronization
+
+Pages reflect live data, rather than a frozen snapshot. Updates during traversal can shift records between pages. Keep a local copy keyed by ID, overlap your `updated_since` window, and deduplicate records. If a time window reaches the page cap, narrow the synchronization interval or contact Cconnect about a bulk export.
+
+Treat conversation IDs as opaque strings. Use the returned ID in later requests without constructing it from provider identifiers.
