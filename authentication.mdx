@@ -24,8 +24,13 @@ Credentials belong to one company. The server derives the company from the crede
 | `ticket_fields:read` | Read custom field definitions | Desk |
 | `conversations:read` | Read conversations and their messages | Chat |
 | `channels:read` | Read channel metadata | Desk for email; Chat for WhatsApp |
+| `whatsapp:send` | Send WhatsApp messages and list approved templates | Chat |
+| `email:send` | Reply to a ticket by email | Desk |
+| `messages:read` | Check API sending status | Desk for email; Chat for WhatsApp |
 
 Scopes are independent: `tickets:write` does not grant `tickets:read`. Linking a new ticket to a conversation also requires `conversations:read` and Chat entitlement. Subscription changes and expired trials are checked on subsequent requests.
+
+Sending scopes are independent from reading scopes. Include `messages:read` if your integration needs to check delivery. Existing credentials do not gain new scopes automatically; create a replacement with the required scopes. Queued sends recheck credential validity and product access before dispatch.
 
 ## Create a credential
 

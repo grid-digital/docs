@@ -7,7 +7,7 @@
       "name": "Cconnect",
       "url": "https://cconnect.online"
     },
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "servers": [
     {
@@ -2609,6 +2609,2073 @@
         }
       }
     },
+    "/api/v1/messages": {
+      "post": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "Send a message",
+        "description": "Queues WhatsApp text or an approved template, or an email reply with ticket_id. Requires whatsapp:send + Chat or email:send + Desk. Email uses the ticket's configured Gmail/SMTP sender and requester; omit to. SMS and attachments are not supported. Idempotent retries return the original acceptance with the same message ID. Check `GET /api/v1/messages/{id}` for current status.",
+        "operationId": "SendMessage",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Unique per operation and company, 1–128 visible ASCII characters. Identical retries return the original 202 acceptance and message ID. Changed requests return 409. Retained for the company lifetime. Check the message resource for current status.",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "example": "crm-reply-1042"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiSendMessageRequest"
+              },
+              "example": {
+                "channel": "whatsapp",
+                "channel_id": "YOUR_WHATSAPP_CHANNEL_ID",
+                "to": "+628123456789",
+                "text": "Your support request is being reviewed."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "headers": {
+              "Location": {
+                "description": "Message status resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Idempotency-Replayed": {
+                "description": "true for an identical retry.",
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOutboundMessageApiData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until a retry is allowed.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tickets/{id}/reply": {
+      "post": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "Reply to a ticket by email",
+        "description": "Queues a plain-text reply to the ticket requester through its configured Gmail/SMTP mailbox. Requires an active ticket, requester email and enabled outgoing mailbox. Other ticket channels are not supported by this operation.\n\nRequired scope: `email:send`.",
+        "operationId": "ReplyToTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Unique per operation and company, 1–128 visible ASCII characters. Identical retries return the original 202 acceptance and message ID. Changed requests return 409. Retained for the company lifetime. Check the message resource for current status.",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "example": "crm-reply-1042"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiTicketReplyRequest"
+              },
+              "example": {
+                "text": "We have resolved your support request."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "headers": {
+              "Location": {
+                "description": "Message status resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Idempotency-Replayed": {
+                "description": "true for an identical retry.",
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOutboundMessageApiData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until a retry is allowed.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scope": "email:send",
+        "x-required-product": "desk"
+      }
+    },
+    "/api/v1/messages/{id}": {
+      "get": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "Get message status",
+        "description": "Looks up a message created through the customer API. Status: queued, sending, sent, delivered, read, failed or delivery_unknown. sent means provider acceptance, not recipient delivery. Email supports sent/failed/delivery_unknown, without delivery or read receipts. A delivery_unknown message is never automatically resent.\n\nRequired scope: `messages:read`.",
+        "operationId": "GetOutboundMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiOutboundMessageApiData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until a retry is allowed.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scope": "messages:read"
+      }
+    },
+    "/api/v1/channels/whatsapp/{id}/templates": {
+      "get": {
+        "tags": [
+          "Messaging"
+        ],
+        "summary": "List approved WhatsApp templates",
+        "description": "Lists up to 50 approved templates. Pass meta.next_after as after while meta.has_more is true. supported indicates whether the template works with this release: positional text parameters in the body; static text headers/buttons are allowed. Media headers, named parameters and dynamic buttons are unsupported.\n\nRequired scope: `whatsapp:send`.",
+        "operationId": "ListWhatsAppTemplates",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "description": "Opaque cursor from meta.next_after. Omit for the first page.",
+            "schema": {
+              "maxLength": 2048,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiTemplateList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Content Too Large",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Retry-After": {
+                "description": "Seconds until a retry is allowed.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Support correlation ID.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-RateLimit-Limit": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Remaining": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "X-RateLimit-Reset": {
+                "description": "Company quota metadata (reset is Unix seconds). Present after bearer authentication and company subscription validation.",
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-scope": "whatsapp:send",
+        "x-required-product": "chat"
+      }
+    },
     "/api/v1/tickets": {
       "get": {
         "tags": [
@@ -5110,6 +7177,59 @@
         },
         "additionalProperties": false
       },
+      "ApiOutboundMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channel": {
+            "enum": [
+              "whatsapp",
+              "email"
+            ],
+            "type": "string"
+          },
+          "channel_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "sending",
+              "sent",
+              "delivered",
+              "read",
+              "failed",
+              "delivery_unknown"
+            ],
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiOutboundMessageApiData": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ApiOutboundMessage"
+          }
+        },
+        "additionalProperties": false
+      },
       "ApiPagination": {
         "type": "object",
         "properties": {
@@ -5120,6 +7240,81 @@
           "per_page": {
             "type": "integer",
             "format": "int32"
+          },
+          "has_more": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiSendMessageRequest": {
+        "required": [
+          "channel",
+          "channel_id"
+        ],
+        "type": "object",
+        "properties": {
+          "channel": {
+            "minLength": 1,
+            "pattern": "^(whatsapp|email)$",
+            "enum": [
+              "whatsapp",
+              "email"
+            ],
+            "type": "string"
+          },
+          "channel_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "to": {
+            "maxLength": 16,
+            "minLength": 0,
+            "type": "string",
+            "description": "E.164 number with a leading +, required for WhatsApp. Omit for email.",
+            "nullable": true
+          },
+          "text": {
+            "maxLength": 10000,
+            "minLength": 0,
+            "type": "string",
+            "description": "WhatsApp text: 1–4096 characters within the 24-hour reply window. Email reply: 1–10000 characters. Omit when using a template.",
+            "nullable": true
+          },
+          "template": {
+            "$ref": "#/components/schemas/ApiWhatsAppTemplateRequest"
+          },
+          "ticket_id": {
+            "type": "string",
+            "description": "Required for email replies; the ticket must use channel_id. Omit for WhatsApp.",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiTemplateList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiWhatsAppTemplate"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiTemplatePagination"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiTemplatePagination": {
+        "type": "object",
+        "properties": {
+          "next_after": {
+            "type": "string",
+            "nullable": true
           },
           "has_more": {
             "type": "boolean"
@@ -5247,6 +7442,20 @@
         },
         "additionalProperties": false
       },
+      "ApiTicketReplyRequest": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "ApiUpdateTicketRequest": {
         "type": "object",
         "properties": {
@@ -5311,6 +7520,62 @@
           },
           "meta": {
             "$ref": "#/components/schemas/ApiPagination"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiWhatsAppTemplate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "body_parameter_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "supported": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiWhatsAppTemplateRequest": {
+        "required": [
+          "language",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "pattern": "^[a-z0-9_]{1,512}$",
+            "type": "string"
+          },
+          "language": {
+            "minLength": 1,
+            "pattern": "^[a-z]{2,3}(_[A-Za-z]{2,4})?$",
+            "type": "string"
+          },
+          "body_parameters": {
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "maxLength": 1024,
+              "minLength": 1,
+              "type": "string"
+            },
+            "description": "Positional body text parameters in template order; each must contain 1–1024 characters.",
+            "nullable": true
           }
         },
         "additionalProperties": false

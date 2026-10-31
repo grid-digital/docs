@@ -1,0 +1,108 @@
+---
+title: "Send WhatsApp messages and email replies"
+description: "Queue a message, retry safely, and check its delivery status."
+---
+
+<Info>
+  Messaging is an implementation preview. Your deployment administrator must deploy the updated Omni API and enable customer API messaging before you can send. Use designated test recipients during development.
+</Info>
+
+You can send WhatsApp text and approved templates through a connected Meta channel, or reply by email through a ticket's configured Gmail or SMTP channel. SMS is not available in this release.
+
+## Prepare your credential and sender
+
+Ask your company administrator for the required [scopes](/authentication):
+
+| Operation | Scope | Product |
+| --- | --- | --- |
+| Send WhatsApp text or templates; list approved templates | `whatsapp:send` | Chat |
+| Send a ticket email reply | `email:send` | Desk |
+| Check sending status | `messages:read` | The message channel's product |
+| Discover sender IDs | `channels:read` | Chat for WhatsApp; Desk for email |
+
+List your connected channels with `GET /api/v1/channels/whatsapp` or `GET /api/v1/channels/email`. Use the returned channel ID. Sending requires a usable Meta connection or an enabled outgoing Gmail/SMTP mailbox. The API keeps provider credentials on the server.
+
+## Send WhatsApp text
+
+You can send free-form text within 24 hours of the customer's latest inbound WhatsApp message. Outside that window, send an approved template. The API checks the window when accepting the request and again before dispatch.
+
+```bash
+curl --request POST 'https://cconnect.online/api/v1/messages' \
+  --header "Authorization: Bearer $CCONNECT_API_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: crm-case-1042-reply-1' \
+  --data '{
+    "channel": "whatsapp",
+    "channel_id": "YOUR_WHATSAPP_CHANNEL_ID",
+    "to": "+628123456789",
+    "text": "Your support request is being reviewed."
+  }'
+```
+
+Use E.164 phone numbers with a leading `+`. Text can contain up to 4,096 characters. Send either `text` or `template` in one request.
+
+## Send an approved template
+
+Call `GET /api/v1/channels/whatsapp/YOUR_WHATSAPP_CHANNEL_ID/templates`. The response lists up to 50 approved templates. If `meta.has_more` is true, pass `meta.next_after` as the `after` query parameter to retrieve the next page.
+
+Choose a template with `supported: true`, use its exact language, and supply the required positional body parameters:
+
+```json
+{
+  "channel": "whatsapp",
+  "channel_id": "YOUR_WHATSAPP_CHANNEL_ID",
+  "to": "+628123456789",
+  "template": {
+    "name": "order_update",
+    "language": "en_US",
+    "body_parameters": ["1042"]
+  }
+}
+```
+
+Send this body to `POST /api/v1/messages` with your bearer token and a new `Idempotency-Key`. The template must already exist and be approved for your connected WhatsApp business. Meta checks approval again before sending. This release supports positional text parameters in the body, with static text headers and static buttons. It does not support media headers, named parameters, or dynamic buttons. Follow the messaging requirements for your connected WhatsApp business, including recipient consent.
+
+## Reply to a ticket by email
+
+Send a plain-text reply to the ticket's requester:
+
+```bash
+curl --request POST 'https://cconnect.online/api/v1/tickets/YOUR_TICKET_ID/reply' \
+  --header "Authorization: Bearer $CCONNECT_API_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --header 'Idempotency-Key: crm-case-1042-email-1' \
+  --data '{"text":"We have resolved your support request."}'
+```
+
+Cconnect selects the ticket's configured email channel and requester address. The ticket must have an enabled outgoing Gmail or SMTP mailbox and a valid requester email. Creating a ticket through the API does not populate these email settings or send a message.
+
+You can also use `POST /api/v1/messages` with `channel: "email"`, the ticket's `channel_id`, `ticket_id`, and `text`. Omit `to` and `template`. Both email routes send to the existing requester. The first release does not support new outbound email conversations, attachments, CC/BCC, or HTML.
+
+## Check sending status
+
+A successful submission returns `202 Accepted`, a message ID in `data.id`, and a `Location` header pointing to `/api/v1/messages/MESSAGE_ID`.
+
+```bash
+curl 'https://cconnect.online/api/v1/messages/YOUR_MESSAGE_ID' \
+  --header "Authorization: Bearer $CCONNECT_API_TOKEN"
+```
+
+| Status | Meaning |
+| --- | --- |
+| `queued` | Cconnect saved the request for dispatch |
+| `sending` | A worker claimed the request |
+| `sent` | The provider accepted the message; recipient delivery is not confirmed |
+| `delivered` | WhatsApp confirmed delivery |
+| `read` | WhatsApp reported a read receipt |
+| `failed` | Validation, authorization, or the provider refused the send; inspect `error_code` |
+| `delivery_unknown` | Cconnect cannot confirm whether submission succeeded |
+
+WhatsApp delivery and read updates depend on signed provider callbacks. Email status stops at provider acceptance; this release does not track email delivery or reads. Sent messages appear in the existing conversation or ticket history. Template messages appear with their template name and language.
+
+Poll with a delay and respect the [company rate limit](/rate-limits). Customer webhook subscriptions are not included in this release.
+
+## Retry safely
+
+Keep the same request, URL, and `Idempotency-Key` when retrying a submission. Cconnect returns the original acceptance and message ID, even after the send finishes. Use the status endpoint for the latest outcome. Each POST route has its own key namespace, so switching between the two email routes is a new operation.
+
+A timeout does not prove that a provider refused a message. Cconnect never automatically resends a message with an uncertain outcome. For `delivery_unknown`, check the provider's delivery logs before deliberately starting a new send. See [idempotency](/idempotency) for details.
