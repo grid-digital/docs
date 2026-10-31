@@ -1,55 +1,33 @@
-# Mintlify Starter Kit
+# Cconnect developer documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Mintlify source for https://developers.cconnect.online.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+The customer API is implemented in `grid-digital/grid-connect-api`. Its committed `docs/openapi/customer-v1.json` is generated from Omni endpoint metadata; do not hand-edit the copy in this repository.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## Refresh the contract
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+From the backend repository, run:
 
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
+```sh
+dotnet run --project backend/Omni.Api.csproj -- --export-customer-openapi /absolute/path/to/this/docs/repository/openapi.json
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+Export requires no database connection and does not run migrations. Set `CustomerApi__PublicBaseUrl` if the API origin differs from `https://cconnect.online`.
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+Copy only the customer document. Internal Swagger documents must not be committed here; Mintlify may publish specifications even when they are absent from navigation.
 
-## Development
+## Validate and preview
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
+```sh
+npx mint@latest validate
+npx mint@latest broken-links
+npx mint@latest dev --no-open
 ```
 
-View your local preview at `http://localhost:3000`.
+The portal uses copyable request examples (`api.playground.display=simple`). Enable an interactive playground only after choosing a test environment and reviewing request routing and credential handling.
 
-## Publishing changes
+## Release order
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Deploy and migrate the backend, verify HTTPS and `/api/v1` routing, enable `CustomerApi:Enabled`, test an administrator-issued credential, then merge the documentation update into the Mintlify deployment branch. Remove the preview banner only after verifying the deployed API.
 
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+This repository does not control DNS or Cloud Run deployment. The API hostname and the documentation hostname are separate.

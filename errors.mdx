@@ -1,0 +1,34 @@
+---
+title: "Errors and troubleshooting"
+description: "Handle consistent HTTP errors and identify requests for support."
+---
+
+Errors use a structured JSON response:
+
+```json
+{
+  "error": {
+    "code": "insufficient_scope",
+    "message": "This credential or subscription does not permit this operation.",
+    "field": null
+  },
+  "request_id": "EXAMPLE_REQUEST_ID"
+}
+```
+
+| Status | Meaning | Action |
+| --- | --- | --- |
+| `400` | Invalid fields, pagination, company header, or missing idempotency key | Correct the request |
+| `401` | Missing, invalid, expired, or revoked credential | Check or rotate your token |
+| `403` | Missing scope, inactive subscription, or unavailable product | Ask your administrator to check access |
+| `404` | Missing or inaccessible resource | Check the resource ID; cross-company resources are not disclosed |
+| `409` | Idempotency key reused with a different payload | Retry the original request or use a new key for a new operation |
+| `413` | Request body exceeds 64 KiB | Reduce the request size |
+| `415` | Unsupported content type | Send JSON with `Content-Type: application/json` |
+| `429` | Company quota or client-address ingress limit reached | Respect `Retry-After` |
+| `500` | Unexpected server failure | Retry reads with backoff; retry ticket creation with its original idempotency key |
+| `503` | Customer API disabled on this deployment | Ask the deployment administrator to confirm availability |
+
+Unknown request body fields are rejected. Database errors, provider secrets, and internal stack traces are not returned to API clients.
+
+For support, include the HTTP method, resource path, timestamp, status code, and `X-Request-Id` response header. Exclude authorization headers, tokens, cookies, and customer message content.

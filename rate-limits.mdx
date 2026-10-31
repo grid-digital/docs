@@ -1,0 +1,21 @@
+---
+title: "Rate limits"
+description: "Respect company quotas and retry throttled requests."
+---
+
+The default customer API quota is **60 authenticated requests per minute per company**, shared across its credentials and API instances. Your deployment can configure a different limit. Authentication and permission checks still apply to every request.
+
+After a valid credential and active company subscription have been verified, responses include:
+
+| Header | Meaning |
+| --- | --- |
+| `X-RateLimit-Limit` | Configured company limit per minute |
+| `X-RateLimit-Remaining` | Requests remaining in the current window |
+| `X-RateLimit-Reset` | Window reset time in Unix seconds |
+| `Retry-After` | Seconds to wait after a `429` response |
+
+A second ingress guard limits requests to **120 per minute per client address per API instance** by default, including failed authentication and credential management requests. It may apply to multiple clients that share a network/proxy address. Do not assume all 429 responses include company quota headers.
+
+The company quota is stored atomically in PostgreSQL and survives application restarts. Requests that pass authentication consume quota even if their operation later fails validation or permission checks.
+
+Wait for `Retry-After`, add a small random delay, and retry with exponential backoff. Cache stable metadata and use `updated_since` filters instead of repeatedly fetching your full history.
