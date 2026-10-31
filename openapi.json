@@ -4860,28 +4860,22 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "title": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "channel": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "kind": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "status": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "channel_id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "updated_at": {
             "type": "string",
@@ -4906,8 +4900,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApiConversation"
-            },
-            "nullable": true
+            }
           },
           "meta": {
             "$ref": "#/components/schemas/ApiPagination"
@@ -4935,7 +4928,7 @@
           "priority": {
             "pattern": "^(low|normal|high|urgent)$",
             "type": "string",
-            "nullable": true
+            "default": "normal"
           },
           "conversation_id": {
             "maxLength": 4096,
@@ -4957,20 +4950,16 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "direction": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "support_address": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "enabled": {
             "type": "boolean"
@@ -4985,8 +4974,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApiEmailChannel"
-            },
-            "nullable": true
+            }
           },
           "meta": {
             "$ref": "#/components/schemas/ApiPagination"
@@ -4998,12 +4986,10 @@
         "type": "object",
         "properties": {
           "code": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "message": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "field": {
             "type": "string",
@@ -5019,8 +5005,7 @@
             "$ref": "#/components/schemas/ApiError"
           },
           "request_id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -5033,19 +5018,16 @@
             "format": "uuid"
           },
           "company_slug": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "company_name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "products": {
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "credential_id": {
             "type": "string",
@@ -5055,8 +5037,7 @@
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -5074,28 +5055,22 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "direction": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "kind": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "text": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "sender_id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "sender_name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "media_type": {
             "type": "string",
@@ -5127,8 +5102,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApiMessage"
-            },
-            "nullable": true
+            }
           },
           "meta": {
             "$ref": "#/components/schemas/ApiPagination"
@@ -5161,28 +5135,22 @@
             "format": "uuid"
           },
           "number": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "subject": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "description": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "status": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "priority": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "channel": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "conversation_id": {
             "type": "string",
@@ -5193,15 +5161,13 @@
             "nullable": true
           },
           "group_name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "custom_fields": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "created_at": {
             "type": "string",
@@ -5230,8 +5196,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApiTicket"
-            },
-            "nullable": true
+            }
           },
           "meta": {
             "$ref": "#/components/schemas/ApiPagination"
@@ -5247,16 +5212,13 @@
             "format": "uuid"
           },
           "key": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "label": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "type": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "required": {
             "type": "boolean"
@@ -5265,8 +5227,7 @@
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           }
         },
         "additionalProperties": false
@@ -5278,8 +5239,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApiTicketField"
-            },
-            "nullable": true
+            }
           },
           "meta": {
             "$ref": "#/components/schemas/ApiPagination"
@@ -5326,20 +5286,16 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "display_phone_number": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "verified_name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "quality_rating": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -5351,8 +5307,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApiWhatsAppChannel"
-            },
-            "nullable": true
+            }
           },
           "meta": {
             "$ref": "#/components/schemas/ApiPagination"
