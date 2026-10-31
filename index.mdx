@@ -3,7 +3,7 @@ title: "Build with Cconnect"
 description: "Connect your systems to Cconnect Desk and Chat."
 ---
 
-Use the Cconnect Customer API to synchronize support tickets, read conversations and messages, and discover your company's connected channels.
+Use the Cconnect Customer API to synchronize support tickets, read conversations and messages, discover your company's connected channels, and send WhatsApp messages or email ticket replies.
 
 The API uses HTTPS, JSON, versioned resource paths, and company-owned bearer credentials. Each request is restricted to the company that issued its credential. Your credential's scopes and your company's product entitlements determine which operations you can use.
 
@@ -11,11 +11,11 @@ The API uses HTTPS, JSON, versioned resource paths, and company-owned bearer cre
 
 | Product | Supported operations in v1 |
 | --- | --- |
-| Desk | List, retrieve, create, and update tickets; read custom ticket fields and email channel metadata |
-| Chat | Read conversations, message history, and WhatsApp channel metadata |
+| Desk | List, retrieve, create, and update tickets; read custom ticket fields and email channel metadata; send ticket email replies |
+| Chat | Read conversations, message history, and WhatsApp channel metadata; send text and approved templates |
 | Integration | Inspect your credential's company, scopes, and current products |
 
-Creating an API ticket does not send a message or email. Outbound sends, customer webhooks, bulk deletion, member administration, contact CRUD, and Call APIs are outside this release.
+Creating an API ticket does not send a message or email. Use the [messaging guide](/guides/send-messages) for explicit sends and status lookup. SMS, customer webhooks, bulk deletion, member administration, contact CRUD, and Call APIs are outside this release.
 
 ## Start here
 
@@ -28,6 +28,6 @@ Creating an API ticket does not send a message or email. Outbound sends, custome
 
 The developer portal is `https://developers.cconnect.online`. The specification is configured for the API origin `https://cconnect.online`; your Cconnect deployment administrator must confirm that this origin routes `/api/v1` to the updated Omni API before onboarding integrations.
 
-The customer API is disabled by default on the backend. These documents describe the v1 implementation; publication alone does not activate it. If a request returns `503 api_disabled`, ask your Cconnect deployment administrator to enable customer API access.
+The customer API and its messaging feature are disabled by default on the backend. These documents describe the v1 implementation; publication alone does not activate it. If a request returns `503 api_disabled`, ask your Cconnect deployment administrator to enable customer API access. Sending also requires messaging enablement; otherwise it returns `503 messaging_disabled`.
 
 The resource-oriented reference follows conventions familiar from [Freshdesk](https://developers.freshdesk.com/api/) and [Qontak](https://docs.qontak.com/). Cconnect defines its own authentication scheme and supported operations.

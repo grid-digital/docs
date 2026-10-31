@@ -3,6 +3,16 @@ title: "API changelog"
 description: "Track changes to the Cconnect customer API contract."
 ---
 
+## v1.1 messaging implementation preview
+
+- WhatsApp text and approved-template sending through connected Meta channels.
+- Plain-text email ticket replies through configured Gmail or SMTP mailboxes.
+- Durable sending queue, idempotent acceptance, and company-scoped status lookup.
+- Separate sending permissions and dispatch-time credential, product, sender, and reply-window checks.
+- Signed Meta delivery/read updates and explicit handling of uncertain delivery.
+
+Messaging requires the updated backend deployment and separate messaging enablement. See the [sending guide](/guides/send-messages).
+
 ## v1 implementation preview
 
 - Company-owned bearer tokens with explicit scopes, expiry, and revocation.
