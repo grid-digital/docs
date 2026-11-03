@@ -3143,7 +3143,7 @@
           "Messaging"
         ],
         "summary": "Reply to a ticket by email",
-        "description": "Queues a plain-text reply to the ticket requester through its configured Gmail/SMTP mailbox. Requires an active ticket, requester email and enabled outgoing mailbox. Other ticket channels are not supported by this operation.\n\nRequired scope: `email:send`.",
+        "description": "Queues a plain-text reply to the ticket requester through its configured mailbox. Requires an active ticket, requester email and enabled outgoing mailbox. Other ticket channels are not supported by this operation.\n\nRequired scope: `email:send`.",
         "operationId": "ReplyToTicket",
         "parameters": [
           {
